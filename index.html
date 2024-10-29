@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mock Google Search</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f9f9f9;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+
+        input[type="text"] {
+            width: calc(100% - 22px);
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        button {
+            padding: 10px;
+            margin-top: 10px;
+            background-color: #4285f4;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #357ae8;
+        }
+
+        #resultsList {
+            margin-top: 20px;
+            list-style-type: none;
+            padding: 0;
+        }
+
+        #resultsList li {
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+            transition: background-color 0.2s;
+        }
+
+        #resultsList li:hover {
+            background-color: #f1f1f1;
+        }
+
+        #loading {
+            display: none;
+            margin-top: 10px;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>4SF22IS075</h1>
+        <input type="text" id="searchInput" placeholder="Search..." />
+        <button id="searchButton">Search</button>
+        <div id="loading">Loading...</div>
+        <ul id="resultsList"></ul>
+    </div>
+    <script>
+        const searchButton = document.getElementById('searchButton');
+        const loadingIndicator = document.getElementById('loading');
+
+        searchButton.addEventListener('click', performSearch);
+        document.getElementById('searchInput').addEventListener('keypress', (event) => {
+            if (event.key === 'Enter') {
+                performSearch();
+            }
+        });
+
+        function performSearch() {
+            const input = document.getElementById('searchInput').value;
+            if (!input) {
+                alert('Please enter a search term.');
+                return;
+            }
+
+            const url = `http://localhost:1234/search?input=${encodeURIComponent(input)}`
+            loadingIndicator.style.display = 'block'; // Show loading indicator
+
+            fetch(url)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    loadingIndicator.style.display = 'none'; // Hide loading indicator
+                    const resultsList = document.getElementById('resultsList');
+                    resultsList.innerHTML = ''; // Clear previous results
+
+                    data.forEach(result => {
+                        const li = document.createElement('li');
+                        li.textContent = result.content; // Assuming result is a string
+                        resultsList.appendChild(li);
+                    });
+                })
+                .catch(error => {
+                    loadingIndicator.style.display = 'none'; // Hide loading indicator
+                    alert('There was a problem with the fetch operation: ' + error.message);
+                });
+        }
+    </script>
+</body>
+</html>
